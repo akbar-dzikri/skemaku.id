@@ -1,5 +1,11 @@
 import { Button } from "../ui/button";
 import { routes } from "./data";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerOverlay,
+} from "@/components/ui/drawer";
 
 export function Navbar() {
   return (
@@ -27,46 +33,45 @@ export function Navbar() {
               </Button>
             ))}
           </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <Button variant="ghost" size="sm">
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Menu */}
-        <div className="md:hidden mt-4 pb-2">
-          <div className="flex flex-col gap-2">
-            {routes.map((route) => (
-              <Button
-                key={route.href}
-                variant="link"
-                asChild
-                className="justify-start"
-              >
-                <a
-                  href={route.href}
-                  className="text-foreground hover:text-primary"
+          <Drawer direction="top">
+            <DrawerTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {route.label}
-                </a>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
               </Button>
-            ))}
-          </div>
+            </DrawerTrigger>
+            <DrawerOverlay />
+            <DrawerContent className="md:hidden mt-4 pb-2">
+              <div className="flex flex-col gap-2">
+                {routes.map((route) => (
+                  <Button
+                    key={route.href}
+                    variant="link"
+                    asChild
+                    className="justify-start"
+                  >
+                    <a
+                      href={route.href}
+                      className="text-foreground hover:text-primary"
+                    >
+                      {route.label}
+                    </a>
+                  </Button>
+                ))}
+              </div>
+            </DrawerContent>
+          </Drawer>
         </div>
       </div>
     </div>
