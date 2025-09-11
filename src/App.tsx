@@ -1,4 +1,5 @@
 import { Navbar } from "./components/navbar/navbar";
+import { AboutSection } from "./components/sections/about/about";
 import { HeroSection } from "./components/sections/hero/hero";
 
 export default function App() {
@@ -6,6 +7,9 @@ export default function App() {
     <>
       <Navbar />
       <HeroSection />
+      <main className="mt-10 md:px-16">
+        <AboutSection />
+      </main>
     </>
   );
 }
