@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 type Breakpoint = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 
@@ -14,41 +14,55 @@ const breakpoints: Record<Breakpoint, number> = {
 export function useBreakpoint(): Breakpoint {
   const [breakpoint, setBreakpoint] = useState<Breakpoint>("xs");
 
+  const updateBreakpoint = useCallback(() => {
+    // Handle SSR - return default breakpoint if window is not available
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const width = window.innerWidth;
+
+    switch (true) {
+      case width >= breakpoints["2xl"]:
+        setBreakpoint("2xl");
+        break;
+      case width >= breakpoints.xl:
+        setBreakpoint("xl");
+        break;
+      case width >= breakpoints.lg:
+        setBreakpoint("lg");
+        break;
+      case width >= breakpoints.md:
+        setBreakpoint("md");
+        break;
+      case width >= breakpoints.sm:
+        setBreakpoint("sm");
+        break;
+      default:
+        setBreakpoint("xs");
+        break;
+    }
+  }, []);
+
   useEffect(() => {
-    const updateBreakpoint = () => {
-      const width = window.innerWidth;
-
-      switch (true) {
-        case width >= breakpoints["2xl"]:
-          setBreakpoint("2xl");
-          break;
-        case width >= breakpoints.xl:
-          setBreakpoint("xl");
-          break;
-        case width >= breakpoints.lg:
-          setBreakpoint("lg");
-          break;
-        case width >= breakpoints.md:
-          setBreakpoint("md");
-          break;
-        case width >= breakpoints.sm:
-          setBreakpoint("sm");
-          break;
-        default:
-          setBreakpoint("xs");
-          break;
-      }
-    };
-
     // Set initial breakpoint
     updateBreakpoint();
 
-    // Add event listener for window resize
-    window.addEventListener("resize", updateBreakpoint);
+    // Add event listener for window resize with throttling
+    let timeoutId: NodeJS.Timeout;
+    const throttledUpdate = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateBreakpoint, 100);
+    };
+
+    window.addEventListener("resize", throttledUpdate);
 
     // Cleanup event listener on unmount
-    return () => window.removeEventListener("resize", updateBreakpoint);
-  }, []);
+    return () => {
+      window.removeEventListener("resize", throttledUpdate);
+      clearTimeout(timeoutId);
+    };
+  }, [updateBreakpoint]);
 
   return breakpoint;
 }
@@ -82,4 +96,27 @@ export function useBreakpointBetween(
   const maxWidth = breakpoints[max];
 
   return currentWidth >= minWidth && currentWidth < maxWidth;
+}
+
+// Utility function to get breakpoint width without hook
+export function getBreakpointWidth(breakpoint: Breakpoint): number {
+  return breakpoints[breakpoint];
+}
+
+// Utility function to get current breakpoint from width
+export function getBreakpointFromWidth(width: number): Breakpoint {
+  switch (true) {
+    case width >= breakpoints["2xl"]:
+      return "2xl";
+    case width >= breakpoints.xl:
+      return "xl";
+    case width >= breakpoints.lg:
+      return "lg";
+    case width >= breakpoints.md:
+      return "md";
+    case width >= breakpoints.sm:
+      return "sm";
+    default:
+      return "xs";
+  }
 }
