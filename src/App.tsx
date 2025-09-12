@@ -7,9 +7,8 @@ export default function App() {
     <>
       <Navbar />
       <HeroSection />
-      <main className="mt-10 md:px-16">
-        <AboutSection />
-      </main>
+      <AboutSection />
+      <main className="mt-10 md:px-16"></main>
     </>
   );
 }
