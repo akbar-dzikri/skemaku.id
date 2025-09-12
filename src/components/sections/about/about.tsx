@@ -176,12 +176,18 @@ function ImageOrCarousel() {
       </div>
 
       {/* Mobile carousel */}
-      <Carousel className="group relative mx-auto w-full max-w-xs md:hidden">
-        <CarouselContent className="flex items-center justify-center">
+      <Carousel
+        className="relative mx-auto w-full max-w-xs md:hidden"
+        opts={{
+          align: "center",
+          loop: true,
+        }}
+      >
+        <CarouselContent>
           {images.map((image, index) => {
             return (
               <CarouselItem key={index}>
-                <div className="h-64 w-full rounded-xl bg-cover bg-center duration-500">
+                <div className="h-64 w-full rounded-xl">
                   <img
                     src={image.src}
                     alt={image.alt}
@@ -191,9 +197,9 @@ function ImageOrCarousel() {
               </CarouselItem>
             );
           })}
-          <CarouselPrevious className="absolute top-1/2 left-1 -translate-y-1/2" />
-          <CarouselNext className="absolute top-1/2 right-1 -translate-y-1/2" />
         </CarouselContent>
+        <CarouselPrevious className="absolute top-1/2 left-2 -translate-y-1/2" />
+        <CarouselNext className="absolute top-1/2 right-2 -translate-y-1/2" />
       </Carousel>
     </div>
   );
