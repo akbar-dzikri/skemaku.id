@@ -4,10 +4,13 @@ import {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  type CarouselApi,
 } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { useEffect, useState } from "react";
 import { useBreakpointBelow } from "@/hooks/use-breakpoint";
+import Autoplay from "embla-carousel-autoplay";
+import { type AutoplayOptionsType } from "embla-carousel-autoplay";
 
 interface MobileCarouselProps {
   images: {
@@ -17,11 +20,33 @@ interface MobileCarouselProps {
 }
 
 export function MobileCarousel({ images }: MobileCarouselProps) {
+  const [api, setApi] = useState<CarouselApi>();
   const [showCarouselProgress, setShowCarouselProgress] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const isMobile = useBreakpointBelow("md");
+  const autoplayConfig: AutoplayOptionsType = {
+    delay: 3000,
+    playOnInit: true,
+  };
   useEffect(() => {
     setShowCarouselProgress(isMobile);
   }, [isMobile]);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+    const autoplayTime = api.plugins().autoplay.timeUntilNext();
+    let timeToPercent = 0;
+
+    const interval = setInterval(() => {
+      if (autoplayTime)
+        timeToPercent = (1 - autoplayTime / Number(autoplayConfig.delay)) * 100;
+      setScrollProgress(timeToPercent);
+    }, 100);
+    return () => clearInterval(interval);
+  });
+
   return (
     <Carousel
       className="relative mx-auto w-full max-w-xs md:hidden"
@@ -29,6 +54,8 @@ export function MobileCarousel({ images }: MobileCarouselProps) {
         align: "center",
         loop: true,
       }}
+      setApi={setApi}
+      plugins={[Autoplay(autoplayConfig)]}
     >
       <CarouselContent>
         {images.map((image, index) => {
@@ -46,7 +73,10 @@ export function MobileCarousel({ images }: MobileCarouselProps) {
         })}
       </CarouselContent>
       <div className="absolute flex w-full justify-center">
-        <MobileCarouselProgress showProgress={showCarouselProgress} />
+        <MobileCarouselProgress
+          showProgress={showCarouselProgress}
+          scrollProgress={scrollProgress}
+        />
       </div>
       <CarouselPrevious className="absolute top-1/2 left-2 -translate-y-1/2" />
       <CarouselNext className="absolute top-1/2 right-2 -translate-y-1/2" />
@@ -54,11 +84,17 @@ export function MobileCarousel({ images }: MobileCarouselProps) {
   );
 }
 
-function MobileCarouselProgress({ showProgress }: { showProgress: boolean }) {
+function MobileCarouselProgress({
+  showProgress,
+  scrollProgress,
+}: {
+  showProgress: boolean;
+  scrollProgress: number;
+}) {
   return (
     <>
       {showProgress ? (
-        <Progress value={50} className="w-full max-w-xs" />
+        <Progress value={scrollProgress} className="w-full max-w-xs" />
       ) : null}
     </>
   );
